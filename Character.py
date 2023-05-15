@@ -1,4 +1,5 @@
 import math
+import random
 from random import randint
 
 import pygame
@@ -21,14 +22,14 @@ class Character(pygame.sprite.Sprite):
         self.hp = self.maxHP
 
         self.inTown = False
-        self.MaxTerrain = 1
+        self.MaxTerrain = 20
 
         self.width = 64
         self.height = 64
-        self.collision_x_offset = 22
-        self.collision_y_offset = 5
-        self.collision_width_offset = 22
-        self.collision_height_offset = 5
+        self.collision_x_offset = 20
+        self.collision_y_offset = 40
+        self.collision_width_offset = 40
+        self.collision_height_offset = 40
 
         self.x_change = 0
         self.y_change = 0
@@ -41,8 +42,9 @@ class Character(pygame.sprite.Sprite):
 
         self.character_spritesheet = SpriteSheet('assets/CharacterWalkingSpritesheet.png')
         self.image = self.character_spritesheet.get_sprite(0, 192, self.width, self.height)
-        self.rect = self.image.get_rect(center=pos)
-        self.collision_rect = pygame.Rect(pos[0] + self.collision_x_offset, pos[1] - self.collision_y_offset, self.width - self.collision_width_offset, self.height - self.collision_height_offset)
+        self.rect = self.image.get_rect(topleft=pos)
+        self.collision_rect = pygame.Rect(self.rect.left + self.collision_x_offset, self.rect.top + self.collision_y_offset, self.width - self.collision_width_offset, self.height - self.collision_height_offset)
+        # self.collision_rect = pygame.Rect(100, 100, self.width, self.height)
 
         self.down_animations = [
             self.character_spritesheet.get_sprite(0, 128, self.width, self.height),
@@ -103,7 +105,8 @@ class Character(pygame.sprite.Sprite):
         self.animate()
 
         self.rect.center += self.direction * PLAYER_SPEED
-        self.collision_rect.center = self.rect.center
+        # self.collision_rect.x += self.direction * PLAYER_SPEED
+        self.collision_rect.center += self.direction * PLAYER_SPEED
         self.collideTerrain('x')
         self.collideTerrain('y')
 
@@ -117,6 +120,19 @@ class Character(pygame.sprite.Sprite):
 
         self.x_change = 0
         self.y_change = 0
+
+    def terrainGen(self, direction):
+        if len(self.game.terrain_group) < self.MaxTerrain:
+            TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
+            for i in range(TerrainGenInt):
+                if direction == 'x':
+                    random_x = random.choice((random.randint(self.rect.x - 500, self.rect.x - 400), random.randint(self.rect.x + 400, self.rect.x + 500)))
+                    random_y = random.randint(self.rect.y - 400, self.rect.y + 400)
+                    Tree(self.game, (random_x, random_y), self.game.terrain_group)
+                elif direction == 'y':
+                    random_x = random.randint(self.rect.x - 400, self.rect.x + 400)
+                    random_y = random.choice((random.randint(self.rect.y - 500, self.rect.y - 400), random.randint(self.rect.y + 400, self.rect.y + 500)))
+                    Tree(self.game, (random_x, random_y), self.game.terrain_group)
 
 
     def animate(self):
@@ -159,21 +175,24 @@ class Character(pygame.sprite.Sprite):
             self.x_change = 1
             self.direction.x = -1
             self.facing = 'left'
+            # self.terrainGen('x')
             if len(self.game.terrain_group) < self.MaxTerrain:
                 TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
                 for i in range(TerrainGenInt):
-                    random_x = randint(self.rect.x - 500, self.rect.x - 400)
-                    random_y = randint(self.rect.y - 500, self.rect.y + 500)
+                    random_x = randint(self.rect.x - 425, self.rect.x - 400)
+                    random_y = randint(self.rect.y - 425, self.rect.y + 425)
                     Tree(self.game, (random_x, random_y), self.game.terrain_group)
+
         elif keys[pygame.K_RIGHT]:
             self.x_change = 1
             self.direction.x = 1
             self.facing = 'right'
+            # self.terrainGen('x')
             if len(self.game.terrain_group) < self.MaxTerrain:
                 TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
                 for i in range(TerrainGenInt):
-                    random_x = randint(self.rect.x + 400, self.rect.x + 500)
-                    random_y = randint(self.rect.y - 500, self.rect.y + 500)
+                    random_x = randint(self.rect.x + 400, self.rect.x + 425)
+                    random_y = random.randint(self.rect.y - 425, self.rect.y + 425)
                     Tree(self.game, (random_x, random_y), self.game.terrain_group)
         else:
             self.direction.x = 0
@@ -183,54 +202,59 @@ class Character(pygame.sprite.Sprite):
             self.y_change  = 1
             self.direction.y = -1
             self.facing = 'up'
+            # self.terrainGen('y')
             if len(self.game.terrain_group) < self.MaxTerrain:
                 TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
                 for i in range(TerrainGenInt):
-                    random_x = randint(self.rect.x - 500, self.rect.x + 500)
-                    random_y = randint(self.rect.y - 500, self.rect.y - 400)
+                    random_x = randint(self.rect.x - 425, self.rect.x + 425)
+                    random_y = randint(self.rect.y - 425, self.rect.y - 400)
                     Tree(self.game, (random_x, random_y), self.game.terrain_group)
         elif keys[pygame.K_DOWN]:
             self.y_change = 1
             self.direction.y = 1
             self.facing = 'down'
+            # self.terrainGen('y')
             if len(self.game.terrain_group) < self.MaxTerrain:
                 TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
                 for i in range(TerrainGenInt):
-                    random_x = randint(self.rect.x - 500, self.rect.x + 500)
-                    random_y = randint(self.rect.y + 400, self.rect.y + 500)
+                    random_x = randint(self.rect.x - 425, self.rect.x + 425)
+                    random_y = randint(self.rect.y + 400, self.rect.y + 425)
                     Tree(self.game, (random_x, random_y), self.game.terrain_group)
         else:
             self.direction.y = 0
 
     def collideTerrain(self, direction):
-        for sprite in self.game.terrain_group:
-            collide = pygame.Rect.colliderect(self.collision_rect, sprite.collision_rect)
-            if direction == 'x':
+
+        if direction == 'x':
+            for sprite in self.game.terrain_group:
+                collide = pygame.Rect.colliderect(self.collision_rect, sprite.collision_rect)
                 if collide:
                     if self.direction.x > 0:  # Moving right
-                        self.rect.right = sprite.collision_rect.left + self.collision_x_offset
                         self.collision_rect.right = sprite.collision_rect.left
+                        self.rect.right = self.collision_rect.right + self.collision_x_offset
+
                     if self.direction.x < 0:  # Moving Left
-                        self.rect.left = sprite.collision_rect.right - self.collision_width_offset
                         self.collision_rect.left = sprite.collision_rect.right
-            if direction == 'y':
+                        self.rect.left = sprite.collision_rect.right - self.collision_x_offset
+
+        if direction == 'y':
+            for sprite in self.game.terrain_group:
+                collide = pygame.Rect.colliderect(self.collision_rect, sprite.collision_rect)
                 if collide:
                     if self.direction.y > 0:  # Moving Down
-                        self.rect.bottom = sprite.collision_rect.top
                         self.collision_rect.bottom = sprite.collision_rect.top
-                        print('------------------------------------------------')
-                        print('Player:'+str(self.rect.bottom), str(self.collision_rect.bottom))
-                        print('Object:'+str(sprite.collision_rect.top))
-                        print('-----------------------------------------------')
+                        self.rect.bottom = self.collision_rect.bottom
+
                     if self.direction.y < 0:  # Moving Up
-                        self.rect.top = sprite.collision_rect.bottom - self.height + self.collision_height_offset
                         self.collision_rect.top = sprite.collision_rect.bottom
+                        self.rect.top = sprite.collision_rect.bottom - self.collision_height_offset
+
 
 class CharacterSlot1(Character):
     def __init__(self, game, pos):
         Character.__init__(self, game, pos)
 
-        self.collision_rect = pygame.Rect(pos[0], pos[1], 25, 25)
+        # self.collision_rect = pygame.Rect(pos[0], pos[1], 25, 25)
 
         self.left_facing_img = self.character_spritesheet.get_sprite(0, 64, self.width, self.height)
         self.right_facing_img = self.character_spritesheet.get_sprite(0, 192, self.width, self.height)
