@@ -8,6 +8,7 @@ import Terrain
 from CONFIG import *
 from SpriteUtilities import SpriteSheet
 from Terrain import *
+from Town import *
 
 
 class Character(pygame.sprite.Sprite):
@@ -23,6 +24,7 @@ class Character(pygame.sprite.Sprite):
         self.hp = self.maxHP
 
         self.inTown = False
+        self.closestTownDist = 1499
         self.MaxTerrain = 20
 
         self.width = 64
@@ -110,19 +112,16 @@ class Character(pygame.sprite.Sprite):
         self.collideTerrain('x')
         self.rect.y += self.direction[1] * PLAYER_SPEED
         self.collision_rect.y += self.direction[1] * PLAYER_SPEED
+
         self.collideTerrain('y')
 
+
+        for town in self.game.TownList:
+            town.distanceToPlayer = math.hypot(town.rect.centerx - self.rect.centerx, town.rect.centery - self.rect.centery)
+
+
         self.terrainGen()
-
-
-        if self.collision_rect.left >= self.game.MainTownRect[0] and self.collision_rect.right <= (self.game.MainTownRect[0] + self.game.MainTownRect[2]):
-            if self.collision_rect.top >= self.game.MainTownRect[1] and self.collision_rect.bottom <= (self.game.MainTownRect[1] + self.game.MainTownRect[3]):
-                self.inTown = True
-            else:
-                self.inTown = False
-        else:
-            self.inTown = False
-
+        self.collideTown()
         self.x_change = 0
         self.y_change = 0
 
@@ -131,8 +130,6 @@ class Character(pygame.sprite.Sprite):
             TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
             for i in range(TerrainGenInt):
                 random_terrain = random.choice(Terrain.TerrainTemplate.TerrainList)
-                print(random_terrain)
-
                 if self.facing == 'left':
                     random_x = randint(self.rect.x - (WIN_WIDTH/2+25), self.rect.x - (WIN_WIDTH/2+25))
                     random_y = randint(self.rect.y - (WIN_HEIGHT/2+25), self.rect.y + (WIN_HEIGHT/2+25))
@@ -152,6 +149,22 @@ class Character(pygame.sprite.Sprite):
                     Tree(self.game, (random_x, random_y), self.game.terrain_group)
                 elif random_terrain == 'Rock':
                     Rock(self.game, (random_x, random_y), self.game.terrain_group)
+        tempList = []
+
+        for town in self.game.TownList:
+
+            tempList.append(town.distanceToPlayer)
+
+        if min(tempList) >= 500:
+
+            self.game.TownList.append(RandomTown((self.rect.x, self.rect.y), "Test Town"))
+            tempList.clear()
+
+
+
+
+        # if self.closestTownDist >= 1500:
+        #     RandomTown((self.rect.x + 200, self.rect.y + 200), "Test Town")
 
 
     def animate(self):
@@ -241,7 +254,17 @@ class Character(pygame.sprite.Sprite):
                         self.collision_rect.top = sprite.collision_rect.bottom
                         self.rect.top = sprite.collision_rect.bottom - self.collision_height_offset
 
-
+    def collideTown(self):
+        for town in self.game.TownList:
+            collide = pygame.Rect.colliderect(self.collision_rect, town.rect)
+            if collide:
+                self.inTown = True
+                self.game.inTownText = self.game.inTownText = self.game.font.render('In ' + town.name + ' town', True, BLACK)
+                self.game.inTownTextRect = self.game.inTownText.get_rect()
+                self.game.inTownTextRect.topright = (WIN_WIDTH - 50, 25)
+            else:
+                self.inTown = False
+            print(self.inTown)
 class CharacterSlot1(Character):
     def __init__(self, game, pos):
         Character.__init__(self, game, pos)

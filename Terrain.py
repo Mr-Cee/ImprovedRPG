@@ -21,8 +21,10 @@ class TerrainTemplate(pygame.sprite.Sprite):
         elif not (self.game.player.rect.y - (WIN_HEIGHT / 2 + 25)) <= self.rect.y <= (
                 self.game.player.rect.y + (WIN_HEIGHT / 2 + 25)):
             self.kill()
-        if self.rect.colliderect(self.game.MainTownRect):
-            self.kill()
+        for town in self.game.TownList:
+            collide = pygame.Rect.colliderect(self.rect, town.rect)
+            if collide:
+                self.kill()
 
         # print(self.rect)
 
@@ -47,7 +49,6 @@ class Rock(TerrainTemplate):
         self.rock4 = self.rock_spritesheet.get_sprite(291, 452, 60, 59)
         self.imageList = [self.rock1, self.rock2, self.rock3, self.rock4]
         randint = random.randint(0, len(self.imageList)-1)
-        print(self.imageList[randint])
         self.image = self.imageList[randint]
         self.image = pygame.transform.scale(self.image, (64, 64))
         self.rect = self.image.get_rect(topleft=pos)

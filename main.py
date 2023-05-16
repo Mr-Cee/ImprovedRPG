@@ -6,6 +6,7 @@ import pygame
 from CameraGroup import CameraGroup
 from Character import *
 from Terrain import *
+from Town import *
 
 
 class Game:
@@ -24,7 +25,9 @@ class Game:
 
         self.inTownText = self.font.render('In Town', True, BLACK)
         self.inTownTextRect = self.inTownText.get_rect()
-        self.inTownTextRect.center = (WIN_WIDTH - 50, 25)
+        self.inTownTextRect.topright = (WIN_WIDTH - 50, 25)
+        self.TownList = [MainTown((500, 500), "Main")]
+
         self.MainTownCoord = (500, 500)
         self.MainTownRect = pygame.Rect(self.MainTownCoord[0], self.MainTownCoord[1], 400, 400)
 
@@ -53,36 +56,11 @@ class Game:
         self.terrain_group.update()
         self.camera_group.update()
 
-        # if 100 <= self.player.rect.x <= 500:
-        #     if 100 <= self.player.rect.y <= 500:
-        #         self.player.inTown = True
-        #
-        #     else:
-        #         self.player.inTown = False
-        # else:
-        #     self.player.inTown = False
-
-
-        # if len(self.terrain_group) < 20:
-        #     TerrainGenInt = 20 - len(self.terrain_group)
-        #     for i in range(TerrainGenInt):
-        #         random_x = randint(self.player.rect.x-500, self.player.rect.x+500)
-        #         random_y = randint(self.player.rect.y-500, self.player.rect.y+500)
-        #         Tree(self, (random_x, random_y), self.terrain_group)
-
     def draw(self):
         self.camera_group.custom_draw(self, self.player)
         if self.player.inTown:
             self.screen.blit(self.inTownText, self.inTownTextRect)
         self.clock.tick(FPS)
-
-
-
-        # for object in self.terrain_group:
-        #     pygame.draw.rect(self.screen, BLACK, object.collision_rect)
-        # for sprite in self.player_sprite_group:
-        #     pygame.draw.rect(self.screen, WHITE, sprite.collision_rect)
-
 
         pygame.display.update()
 
