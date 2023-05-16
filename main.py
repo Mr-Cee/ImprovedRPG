@@ -14,12 +14,19 @@ class Game:
         self.screen = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
         self.clock = pygame.time.Clock()
         self.running = True
+        self.font = pygame.font.Font('freesansbold.ttf', 20)
 
         self.all_sprites = pygame.sprite.LayeredUpdates()
         self.camera_group = CameraGroup()
         self.player_sprite_group = pygame.sprite.Group()
         self.terrain_group = pygame.sprite.Group()
         self.CollisionBool = True
+
+        self.inTownText = self.font.render('In Town', True, BLACK)
+        self.inTownTextRect = self.inTownText.get_rect()
+        self.inTownTextRect.center = (WIN_WIDTH - 50, 25)
+        self.MainTownCoord = (500, 500)
+        self.MainTownRect = pygame.Rect(self.MainTownCoord[0], self.MainTownCoord[1], 400, 400)
 
     def events(self):
         for event in pygame.event.get():
@@ -46,6 +53,16 @@ class Game:
         self.terrain_group.update()
         self.camera_group.update()
 
+        # if 100 <= self.player.rect.x <= 500:
+        #     if 100 <= self.player.rect.y <= 500:
+        #         self.player.inTown = True
+        #
+        #     else:
+        #         self.player.inTown = False
+        # else:
+        #     self.player.inTown = False
+
+
         # if len(self.terrain_group) < 20:
         #     TerrainGenInt = 20 - len(self.terrain_group)
         #     for i in range(TerrainGenInt):
@@ -55,6 +72,8 @@ class Game:
 
     def draw(self):
         self.camera_group.custom_draw(self, self.player)
+        if self.player.inTown:
+            self.screen.blit(self.inTownText, self.inTownTextRect)
         self.clock.tick(FPS)
 
 

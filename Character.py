@@ -4,9 +4,10 @@ from random import randint
 
 import pygame
 
+import Terrain
 from CONFIG import *
 from SpriteUtilities import SpriteSheet
-from Terrain import Tree
+from Terrain import *
 
 
 class Character(pygame.sprite.Sprite):
@@ -104,14 +105,18 @@ class Character(pygame.sprite.Sprite):
         self.movement()
         self.animate()
 
-        self.rect.center += self.direction * PLAYER_SPEED
-        # self.collision_rect.x += self.direction * PLAYER_SPEED
-        self.collision_rect.center += self.direction * PLAYER_SPEED
+        self.rect.x += self.direction[0] * PLAYER_SPEED
+        self.collision_rect.x += self.direction[0] * PLAYER_SPEED
         self.collideTerrain('x')
+        self.rect.y += self.direction[1] * PLAYER_SPEED
+        self.collision_rect.y += self.direction[1] * PLAYER_SPEED
         self.collideTerrain('y')
 
-        if 0 <= self.rect.x <= 400:
-            if 0 <= self.rect.y <= 400:
+        self.terrainGen()
+
+
+        if self.collision_rect.left >= self.game.MainTownRect[0] and self.collision_rect.right <= (self.game.MainTownRect[0] + self.game.MainTownRect[2]):
+            if self.collision_rect.top >= self.game.MainTownRect[1] and self.collision_rect.bottom <= (self.game.MainTownRect[1] + self.game.MainTownRect[3]):
                 self.inTown = True
             else:
                 self.inTown = False
@@ -121,18 +126,32 @@ class Character(pygame.sprite.Sprite):
         self.x_change = 0
         self.y_change = 0
 
-    def terrainGen(self, direction):
+    def terrainGen(self):
         if len(self.game.terrain_group) < self.MaxTerrain:
             TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
             for i in range(TerrainGenInt):
-                if direction == 'x':
-                    random_x = random.choice((random.randint(self.rect.x - 500, self.rect.x - 400), random.randint(self.rect.x + 400, self.rect.x + 500)))
-                    random_y = random.randint(self.rect.y - 400, self.rect.y + 400)
+                random_terrain = random.choice(Terrain.TerrainTemplate.TerrainList)
+                print(random_terrain)
+
+                if self.facing == 'left':
+                    random_x = randint(self.rect.x - (WIN_WIDTH/2+25), self.rect.x - (WIN_WIDTH/2+25))
+                    random_y = randint(self.rect.y - (WIN_HEIGHT/2+25), self.rect.y + (WIN_HEIGHT/2+25))
+                elif self.facing == 'right':
+                    random_x = randint(self.rect.x + (WIN_WIDTH/2+25), self.rect.x + (WIN_WIDTH/2+25))
+                    random_y = random.randint(self.rect.y - (WIN_HEIGHT/2+25), self.rect.y + (WIN_HEIGHT/2+25))
+                elif self.facing == 'up':
+                    random_x = randint(self.rect.x - (WIN_WIDTH/2+25), self.rect.x + (WIN_WIDTH/2+25))
+                    random_y = randint(self.rect.y - (WIN_HEIGHT/2+25), self.rect.y - (WIN_HEIGHT/2+25))
+                elif self.facing == 'down':
+                    random_x = randint(self.rect.x - (WIN_WIDTH/2+25), self.rect.x + (WIN_WIDTH/2+25))
+                    random_y = randint(self.rect.y + (WIN_HEIGHT/2+25), self.rect.y + (WIN_HEIGHT/2+25))
+                else:
+                    random_x = 10000
+                    random_y = 10000
+                if random_terrain == 'Tree':
                     Tree(self.game, (random_x, random_y), self.game.terrain_group)
-                elif direction == 'y':
-                    random_x = random.randint(self.rect.x - 400, self.rect.x + 400)
-                    random_y = random.choice((random.randint(self.rect.y - 500, self.rect.y - 400), random.randint(self.rect.y + 400, self.rect.y + 500)))
-                    Tree(self.game, (random_x, random_y), self.game.terrain_group)
+                elif random_terrain == 'Rock':
+                    Rock(self.game, (random_x, random_y), self.game.terrain_group)
 
 
     def animate(self):
@@ -175,51 +194,24 @@ class Character(pygame.sprite.Sprite):
             self.x_change = 1
             self.direction.x = -1
             self.facing = 'left'
-            # self.terrainGen('x')
-            if len(self.game.terrain_group) < self.MaxTerrain:
-                TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
-                for i in range(TerrainGenInt):
-                    random_x = randint(self.rect.x - 425, self.rect.x - 400)
-                    random_y = randint(self.rect.y - 425, self.rect.y + 425)
-                    Tree(self.game, (random_x, random_y), self.game.terrain_group)
 
         elif keys[pygame.K_RIGHT]:
             self.x_change = 1
             self.direction.x = 1
             self.facing = 'right'
-            # self.terrainGen('x')
-            if len(self.game.terrain_group) < self.MaxTerrain:
-                TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
-                for i in range(TerrainGenInt):
-                    random_x = randint(self.rect.x + 400, self.rect.x + 425)
-                    random_y = random.randint(self.rect.y - 425, self.rect.y + 425)
-                    Tree(self.game, (random_x, random_y), self.game.terrain_group)
         else:
             self.direction.x = 0
 
-
         if keys[pygame.K_UP]:
-            self.y_change  = 1
+            self.y_change = 1
             self.direction.y = -1
             self.facing = 'up'
-            # self.terrainGen('y')
-            if len(self.game.terrain_group) < self.MaxTerrain:
-                TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
-                for i in range(TerrainGenInt):
-                    random_x = randint(self.rect.x - 425, self.rect.x + 425)
-                    random_y = randint(self.rect.y - 425, self.rect.y - 400)
-                    Tree(self.game, (random_x, random_y), self.game.terrain_group)
+
         elif keys[pygame.K_DOWN]:
             self.y_change = 1
             self.direction.y = 1
             self.facing = 'down'
-            # self.terrainGen('y')
-            if len(self.game.terrain_group) < self.MaxTerrain:
-                TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
-                for i in range(TerrainGenInt):
-                    random_x = randint(self.rect.x - 425, self.rect.x + 425)
-                    random_y = randint(self.rect.y + 400, self.rect.y + 425)
-                    Tree(self.game, (random_x, random_y), self.game.terrain_group)
+
         else:
             self.direction.y = 0
 

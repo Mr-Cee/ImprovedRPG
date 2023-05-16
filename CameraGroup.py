@@ -32,11 +32,18 @@ class CameraGroup(pygame.sprite.Group):
         self.display_surface.fill(BLACK)
         self.display_surface.blit(self.ground_surf, ground_offset)
 
+        # Draw Main Town line
+        pygame.draw.rect(self.display_surface, BLACK, (self.game.MainTownRect[0] - self.offset[0], self.game.MainTownRect[1] - self.offset[1], self.game.MainTownRect[2], self.game.MainTownRect[3]), 2)
 
         # Active Elements
         for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.bottom):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
+
+        if self.game.player.inTown:
+            self.display_surface.blit(self.game.inTownText, self.game.inTownTextRect)
+
+
         #
         # for object in self.game.terrain_group:
         #     pygame.draw.rect(self.display_surface, BLACK, (object.collision_rect[0]-self.offset[0], object.collision_rect[1] - self.offset[1], object.collision_rect[2], object.collision_rect[3]))
