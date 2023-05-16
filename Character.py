@@ -24,7 +24,7 @@ class Character(pygame.sprite.Sprite):
         self.hp = self.maxHP
 
         self.inTown = False
-        self.closestTownDist = 500
+        self.closestTownDist = 2000
         self.newTownNum = 1
         self.MaxTerrain = 20
 
