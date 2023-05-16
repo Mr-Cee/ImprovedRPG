@@ -24,7 +24,8 @@ class Character(pygame.sprite.Sprite):
         self.hp = self.maxHP
 
         self.inTown = False
-        self.closestTownDist = 1499
+        self.closestTownDist = 500
+        self.newTownNum = 1
         self.MaxTerrain = 20
 
         self.width = 64
@@ -155,9 +156,10 @@ class Character(pygame.sprite.Sprite):
 
             tempList.append(town.distanceToPlayer)
 
-        if min(tempList) >= 500:
+        if min(tempList) >= self.closestTownDist:
 
-            self.game.TownList.append(RandomTown((self.rect.x, self.rect.y), "Test Town"))
+            self.game.TownList.append(RandomTown((self.rect.x, self.rect.y), "Test " + str(self.newTownNum)))
+            self.newTownNum += 1
             tempList.clear()
 
 
@@ -262,9 +264,9 @@ class Character(pygame.sprite.Sprite):
                 self.game.inTownText = self.game.inTownText = self.game.font.render('In ' + town.name + ' town', True, BLACK)
                 self.game.inTownTextRect = self.game.inTownText.get_rect()
                 self.game.inTownTextRect.topright = (WIN_WIDTH - 50, 25)
+                break
             else:
                 self.inTown = False
-            print(self.inTown)
 class CharacterSlot1(Character):
     def __init__(self, game, pos):
         Character.__init__(self, game, pos)
