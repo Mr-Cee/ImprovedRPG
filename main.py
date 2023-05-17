@@ -7,6 +7,7 @@ from CameraGroup import CameraGroup
 from Character import *
 from Terrain import *
 from Town import *
+from Enemy import *
 
 
 class Game:
@@ -21,6 +22,7 @@ class Game:
         self.camera_group = CameraGroup()
         self.player_sprite_group = pygame.sprite.Group()
         self.terrain_group = pygame.sprite.Group()
+        self.enemy_group = pygame.sprite.Group()
         self.CollisionBool = True
 
         self.inTownText = self.font.render('In Town', True, BLACK)
@@ -56,8 +58,6 @@ class Game:
                 if event.key == pygame.K_SPACE:
                     self.CollisionBool = not self.CollisionBool
                 if event.key == pygame.K_t:
-
-
                     if not self.player.inTown:
                         self.TP_pos = self.player.rect.center
                         print('Teleporting to closest town: ' + TownListDictionary[
@@ -80,9 +80,10 @@ class Game:
                         self.generateTerrain()
 
                     self.generateTerrain()
-                if event.key == pygame.K_g:
-                    print(TownDistanceDictionary[min(TownDistanceDictionary, key=TownDistanceDictionary.get)])
-                    print(TownDistanceDictionary)
+                if event.key == pygame.K_s:
+                    EnemyTemplate(self, (self.player.rect.centerx, self.player.rect.centery+100),10, 10, 10 )
+
+
 
     def new(self):
         self.playing = True
@@ -92,11 +93,13 @@ class Game:
             random_x = randint(0, WIN_WIDTH)
             random_y = randint(0, WIN_HEIGHT)
             Tree(self, (random_x, random_y), self.terrain_group)
+        Wolf = EnemyTemplate(self, (400, 600), 10, 10, 10)
+
 
     def update(self):
         self.all_sprites.update()
-        self.terrain_group.update()
         self.camera_group.update()
+
 
     def draw(self):
         self.camera_group.custom_draw(self, self.player)
