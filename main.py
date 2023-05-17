@@ -26,13 +26,26 @@ class Game:
         self.inTownText = self.font.render('In Town', True, BLACK)
         self.inTownTextRect = self.inTownText.get_rect()
         self.inTownTextRect.topright = (WIN_WIDTH - 50, 25)
-        self.MainTown = MainTown((500, 500), "Main", 1)
+        self.MainTown = MainTown((500, 500), "Main", 0)
         self.TownList = [self.MainTown]
         TownListDictionary[self.MainTown.ID] = self.MainTown
         TownDistanceDictionary[self.MainTown.ID] = self.MainTown.distanceToPlayer
 
         self.MainTownCoord = (500, 500)
         self.MainTownRect = pygame.Rect(self.MainTownCoord[0], self.MainTownCoord[1], 400, 400)
+
+    def generateTerrain(self):
+        for sprite in self.terrain_group:
+            sprite.kill()
+
+        for i in range(20):
+            random_terrain = random.choice(Terrain.TerrainTemplate.TerrainList)
+            random_x = randint(0, WIN_WIDTH)
+            random_y = randint(0, WIN_HEIGHT)
+            if random_terrain == 'Tree':
+                Tree(self, (random_x, random_y), self.terrain_group)
+            elif random_terrain == 'Rock':
+                Rock(self, (random_x, random_y), self.terrain_group)
 
     def events(self):
         for event in pygame.event.get():
@@ -43,7 +56,33 @@ class Game:
                 if event.key == pygame.K_SPACE:
                     self.CollisionBool = not self.CollisionBool
                 if event.key == pygame.K_t:
-                    print('Test Teleport to ')
+
+
+                    if not self.player.inTown:
+                        self.TP_pos = self.player.rect.center
+                        print('Teleporting to closest town: ' + TownListDictionary[
+                            min(TownDistanceDictionary, key=TownDistanceDictionary.get)].name)
+                        self.player.rect.center = TownListDictionary[
+                            min(TownDistanceDictionary, key=TownDistanceDictionary.get)].rect.center
+                        self.player.collision_rect = pygame.Rect(self.player.rect.left + self.player.collision_x_offset,
+                                                                 self.player.rect.top + self.player.collision_y_offset,
+                                                                 self.player.width - self.player.collision_width_offset,
+                                                                 self.player.height - self.player.collision_height_offset)
+                        self.generateTerrain()
+                    else:
+                        print("Going back to previous Location")
+                        self.player.rect.center = self.TP_pos
+                        self.player.collision_rect = pygame.Rect(self.player.rect.left + self.player.collision_x_offset,
+                                                                 self.player.rect.top + self.player.collision_y_offset,
+                                                                 self.player.width - self.player.collision_width_offset,
+                                                                 self.player.height - self.player.collision_height_offset)
+                        current_pos = None
+                        self.generateTerrain()
+
+                    self.generateTerrain()
+                if event.key == pygame.K_g:
+                    print(TownDistanceDictionary[min(TownDistanceDictionary, key=TownDistanceDictionary.get)])
+                    print(TownDistanceDictionary)
 
     def new(self):
         self.playing = True
@@ -52,8 +91,6 @@ class Game:
         for i in range(20):
             random_x = randint(0, WIN_WIDTH)
             random_y = randint(0, WIN_HEIGHT)
-            # random_x = 475
-            # random_y = 475
             Tree(self, (random_x, random_y), self.terrain_group)
 
     def update(self):

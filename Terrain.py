@@ -14,12 +14,13 @@ class TerrainTemplate(pygame.sprite.Sprite):
         self.image = pygame.image.load('assets/tree.png')  # Defaults to Tree Image
         self.rect = self.image.get_rect(topleft=pos)
 
+
     def update(self):
-        if not (self.game.player.rect.x - (WIN_WIDTH / 2 + 25)) <= self.rect.x <= (
-                self.game.player.rect.x + (WIN_WIDTH / 2 + 25)):
+        if not (self.game.player.rect.x - TerrainGenEdgeW) <= self.rect.x <= (
+                self.game.player.rect.x + TerrainGenEdgeW):
             self.kill()
-        elif not (self.game.player.rect.y - (WIN_HEIGHT / 2 + 25)) <= self.rect.y <= (
-                self.game.player.rect.y + (WIN_HEIGHT / 2 + 25)):
+        elif not (self.game.player.rect.y - TerrainGenEdgeH) <= self.rect.y <= (
+                self.game.player.rect.y + TerrainGenEdgeH):
             self.kill()
         for town in self.game.TownList:
             collide = pygame.Rect.colliderect(self.rect, town.rect)
