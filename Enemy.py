@@ -34,12 +34,9 @@ class EnemyTemplate(pygame.sprite.Sprite):
         self.max_travel = 100
         self.canMove = True
         self.dt = ENEMY_SPEED
-        self.direction = math.atan2(self.y-(random.randint(self.y-self.max_travel, self.y + self.max_travel)),
-                                    self.x - (random.randint(self.x-self.max_travel, self.x+self.max_travel)))
-        self.direction2 = 0.125
-        print(self.direction2)
-        self.speed_x = -1
-        self.speed_y = 0
+        self.direction2 = (1/30)
+        self.speed_x = random.randint(-30,30)*self.direction2
+        self.speed_y = random.randint(-30,30)*self.direction2
         self.collisionCount = 0
 
         self.inCombat = False
@@ -77,11 +74,11 @@ class EnemyTemplate(pygame.sprite.Sprite):
 
     def movementDirectionChange(self):
         self.direction2 *= -1
-        self.speed_x = random.randint(0, 8) * self.direction2
-        self.speed_y = random.randint(0, 8) * self.direction2
+        self.speed_x = random.randint(-30, 30) * self.direction2
+        self.speed_y = random.randint(-30, 30) * self.direction2
         if self.speed_x == 0 and self.speed_y == 0:
-            self.speed_x = random.randint(1, 8) * self.direction2
-            self.speed_y = random.randint(1, 8) * self.direction2
+            self.speed_x = random.randint(-30, 30) * self.direction2
+            self.speed_y = random.randint(-30, 30) * self.direction2
 
     def movement(self):
         if self.canMove:
