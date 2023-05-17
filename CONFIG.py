@@ -17,4 +17,8 @@ BACKGROUND_IMG = pygame.image.load('assets/LargeBackground.png')
 # Player Settings
 PLAYER_SPEED = 2
 
+# Town Settings
+TownListDictionary = {'ID': 'Town'}
+TownDistanceDictionary = {'ID': 'Distance'}
+
 

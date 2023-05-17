@@ -26,7 +26,10 @@ class Game:
         self.inTownText = self.font.render('In Town', True, BLACK)
         self.inTownTextRect = self.inTownText.get_rect()
         self.inTownTextRect.topright = (WIN_WIDTH - 50, 25)
-        self.TownList = [MainTown((500, 500), "Main")]
+        self.MainTown = MainTown((500, 500), "Main", 1)
+        self.TownList = [self.MainTown]
+        TownListDictionary[self.MainTown.ID] = self.MainTown
+        TownDistanceDictionary[self.MainTown.ID] = self.MainTown.distanceToPlayer
 
         self.MainTownCoord = (500, 500)
         self.MainTownRect = pygame.Rect(self.MainTownCoord[0], self.MainTownCoord[1], 400, 400)
@@ -39,6 +42,8 @@ class Game:
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE:
                     self.CollisionBool = not self.CollisionBool
+                if event.key == pygame.K_t:
+                    print('Test Teleport to ')
 
     def new(self):
         self.playing = True

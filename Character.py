@@ -24,7 +24,9 @@ class Character(pygame.sprite.Sprite):
         self.hp = self.maxHP
 
         self.inTown = False
-        self.closestTownDist = 2000
+        self.closestTownDistRange = 2000
+        self.closestTownDistList = []
+        self.closestTown = self.game.MainTown
         self.newTownNum = 1
         self.MaxTerrain = 20
 
@@ -118,7 +120,15 @@ class Character(pygame.sprite.Sprite):
 
 
         for town in self.game.TownList:
+            tempDistVar = self.game.MainTown.distanceToPlayer
             town.distanceToPlayer = math.hypot(town.rect.centerx - self.rect.centerx, town.rect.centery - self.rect.centery)
+            if town.distanceToPlayer < tempDistVar:
+                self.closestTown = town
+                tempDistVar = town.distanceToPlayer
+
+        # print('Closest Town: ' + self.closestTown.name + ' is ' + str(self.closestTown.distanceToPlayer) + ' away.')
+
+
 
 
         self.terrainGen()
@@ -126,7 +136,15 @@ class Character(pygame.sprite.Sprite):
         self.x_change = 0
         self.y_change = 0
 
+
+    def updateTownStats(self, town):
+        if
+
     def terrainGen(self):
+        for town in self.game.TownList:
+            self.closestTownDistList.append(town.distanceToPlayer)
+        print(len(self.closestTownDistList))
+
         if len(self.game.terrain_group) < self.MaxTerrain:
             TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
             for i in range(TerrainGenInt):
@@ -134,15 +152,35 @@ class Character(pygame.sprite.Sprite):
                 if self.facing == 'left':
                     random_x = randint(self.rect.x - (WIN_WIDTH/2+25), self.rect.x - (WIN_WIDTH/2+25))
                     random_y = randint(self.rect.y - (WIN_HEIGHT/2+25), self.rect.y + (WIN_HEIGHT/2+25))
+                    if min(self.closestTownDistList) >= self.closestTownDistRange:
+                        self.game.TownList.append(
+                            RandomTown((random_x, random_y), "Test " + str(self.newTownNum)))
+                        self.newTownNum += 1
+                        self.closestTownDistList.clear()
                 elif self.facing == 'right':
                     random_x = randint(self.rect.x + (WIN_WIDTH/2+25), self.rect.x + (WIN_WIDTH/2+25))
                     random_y = random.randint(self.rect.y - (WIN_HEIGHT/2+25), self.rect.y + (WIN_HEIGHT/2+25))
+                    if min(self.closestTownDistList) >= self.closestTownDistRange:
+                        self.game.TownList.append(
+                            RandomTown((random_x, random_y), "Test " + str(self.newTownNum)))
+                        self.newTownNum += 1
+                        self.closestTownDistList.clear()
                 elif self.facing == 'up':
                     random_x = randint(self.rect.x - (WIN_WIDTH/2+25), self.rect.x + (WIN_WIDTH/2+25))
                     random_y = randint(self.rect.y - (WIN_HEIGHT/2+25), self.rect.y - (WIN_HEIGHT/2+25))
+                    if min(self.closestTownDistList) >= self.closestTownDistRange:
+                        self.game.TownList.append(
+                            RandomTown((random_x, random_y), "Test " + str(self.newTownNum)))
+                        self.newTownNum += 1
+                        self.closestTownDistList.clear()
                 elif self.facing == 'down':
                     random_x = randint(self.rect.x - (WIN_WIDTH/2+25), self.rect.x + (WIN_WIDTH/2+25))
                     random_y = randint(self.rect.y + (WIN_HEIGHT/2+25), self.rect.y + (WIN_HEIGHT/2+25))
+                    if min(self.closestTownDistList) >= self.closestTownDistRange:
+                        self.game.TownList.append(
+                            RandomTown((random_x, random_y), "Test " + str(self.newTownNum)))
+                        self.newTownNum += 1
+                        self.closestTownDistList.clear()
                 else:
                     random_x = 10000
                     random_y = 10000
@@ -150,23 +188,13 @@ class Character(pygame.sprite.Sprite):
                     Tree(self.game, (random_x, random_y), self.game.terrain_group)
                 elif random_terrain == 'Rock':
                     Rock(self.game, (random_x, random_y), self.game.terrain_group)
-        tempList = []
-
-        for town in self.game.TownList:
-
-            tempList.append(town.distanceToPlayer)
-
-        if min(tempList) >= self.closestTownDist:
-
-            self.game.TownList.append(RandomTown((self.rect.x, self.rect.y), "Test " + str(self.newTownNum)))
-            self.newTownNum += 1
-            tempList.clear()
 
 
 
-
-        # if self.closestTownDist >= 1500:
-        #     RandomTown((self.rect.x + 200, self.rect.y + 200), "Test Town")
+        # if min(tempList) >= self.closestTownDist:
+        #     self.game.TownList.append(RandomTown((self.rect.x, self.rect.y), "Test " + str(self.newTownNum)))
+        #     self.newTownNum += 1
+        #     tempList.clear()
 
 
     def animate(self):
