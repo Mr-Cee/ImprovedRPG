@@ -70,6 +70,10 @@ class EnemyTemplate(pygame.sprite.Sprite):
 
         if not (self.game.player.rect.centerx-TerrainGenEdgeW) < self.rect.centerx < (self.game.player.rect.centerx+TerrainGenEdgeW):
             self.kill()
+        if not (self.game.player.rect.centery - TerrainGenEdgeH) < self.rect.centery < (
+                self.game.player.rect.centery + TerrainGenEdgeH):
+            self.kill()
+
 
     def movementDirectionChange(self):
         self.direction2 *= -1
