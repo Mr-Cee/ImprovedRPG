@@ -12,6 +12,7 @@ FPS = 60
 # Color Keys
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
+SKYBLUE = (66, 203, 245)
 
 # Images
 BACKGROUND_IMG = pygame.image.load('assets/LargeBackground.png')

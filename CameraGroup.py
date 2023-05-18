@@ -9,6 +9,7 @@ class CameraGroup(pygame.sprite.Group):
 
         # Camera Offset
         self.offset = pygame.math.Vector2()
+        self.combatoffset = pygame.math.Vector2()
         self.half_w = self.display_surface.get_size()[0] // 2
         self.half_h = self.display_surface.get_size()[1] // 2
 
@@ -22,58 +23,71 @@ class CameraGroup(pygame.sprite.Group):
         self.offset.x = target.rect.centerx - self.half_w
         self.offset.y = target.rect.centery - self.half_h
 
+
+
     def custom_draw(self, game, player):
         self.game = game
         self.center_target_camera(player)
 
-        # Ground
-        ground_offset = self.ground_rect.topleft - self.offset
-        # self.display_surface.blit(self.ground_surf, (0, 0))
-        self.display_surface.fill(BLACK)
-        self.display_surface.blit(self.ground_surf, ground_offset)
+        if not self.game.player.inCombat:
+            # Ground
+            ground_offset = self.ground_rect.topleft - self.offset
+            # self.display_surface.blit(self.ground_surf, (0, 0))
+            self.display_surface.fill(BLACK)
+            self.display_surface.blit(self.ground_surf, ground_offset)
 
-        # Draw Main Town line
-        for town in self.game.TownList:
-            pygame.draw.rect(self.display_surface, BLACK,
-                             (town.rect[0] - self.offset[0], town.rect[1] - self.offset[1], town.rect[2], town.rect[3]),
-                             2)
+            # Draw Main Town line
+            for town in self.game.TownList:
+                pygame.draw.rect(self.display_surface, BLACK,
+                                 (town.rect[0] - self.offset[0], town.rect[1] - self.offset[1], town.rect[2], town.rect[3]),
+                                 2)
 
-        # Active Elements
-        for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.bottom):
-            offset_pos = sprite.rect.topleft - self.offset
-            self.display_surface.blit(sprite.image, offset_pos)
+            # Active Elements
+            for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.bottom):
+                offset_pos = sprite.rect.topleft - self.offset
+                self.display_surface.blit(sprite.image, offset_pos)
 
-        if self.game.player.inTown:
-            self.display_surface.blit(self.game.inTownText, self.game.inTownTextRect)
+            if self.game.player.inTown:
+                self.display_surface.blit(self.game.inTownText, self.game.inTownTextRect)
 
-        #
-        ## Terrain Rects
-        # for sprite in self.game.terrain_group:
-        #     if self.game.CollisionBool:
-        #         pygame.draw.rect(self.display_surface, WHITE, (
-        #             sprite.collision_rect[0] - self.offset[0], sprite.collision_rect[1] - self.offset[1],
-        #             sprite.collision_rect[2], sprite.collision_rect[3]))
-        #     else:
-        #         pygame.draw.rect(self.display_surface, WHITE, (
-        #             sprite.rect[0] - self.offset[0], sprite.rect[1] - self.offset[1], sprite.rect[2],
-        #             sprite.rect[3]))
+            #
+            ## Terrain Rects
+            # for sprite in self.game.terrain_group:
+            #     if self.game.CollisionBool:
+            #         pygame.draw.rect(self.display_surface, WHITE, (
+            #             sprite.collision_rect[0] - self.offset[0], sprite.collision_rect[1] - self.offset[1],
+            #             sprite.collision_rect[2], sprite.collision_rect[3]))
+            #     else:
+            #         pygame.draw.rect(self.display_surface, WHITE, (
+            #             sprite.rect[0] - self.offset[0], sprite.rect[1] - self.offset[1], sprite.rect[2],
+            #             sprite.rect[3]))
 
-        ## Player Rects
-        # for sprite in self.game.player_sprite_group:
-        #     if self.game.CollisionBool:
-        #         pygame.draw.rect(self.display_surface, WHITE, (sprite.collision_rect[0]-self.offset[0], sprite.collision_rect[1] - self.offset[1], sprite.collision_rect[2], sprite.collision_rect[3]))
-        #     else:
-        #         pygame.draw.rect(self.display_surface, WHITE, (sprite.rect[0]-self.offset[0], sprite.rect[1] - self.offset[1], sprite.rect[2], sprite.rect[3]))
+            ## Player Rects
+            # for sprite in self.game.player_sprite_group:
+            #     if self.game.CollisionBool:
+            #         pygame.draw.rect(self.display_surface, WHITE, (sprite.collision_rect[0]-self.offset[0], sprite.collision_rect[1] - self.offset[1], sprite.collision_rect[2], sprite.collision_rect[3]))
+            #     else:
+            #         pygame.draw.rect(self.display_surface, WHITE, (sprite.rect[0]-self.offset[0], sprite.rect[1] - self.offset[1], sprite.rect[2], sprite.rect[3]))
 
-        ## Enemy Rects
-        # for sprite in self.game.enemy_group:
-        #     if self.game.CollisionBool:
-        #         pygame.draw.rect(self.display_surface, WHITE, (
-        #             sprite.collision_rect[0] - self.offset[0], sprite.collision_rect[1] - self.offset[1],
-        #             sprite.collision_rect[2], sprite.collision_rect[3]))
-        #     else:
-        #         pygame.draw.rect(self.display_surface, WHITE, (
-        #             sprite.rect[0] - self.offset[0], sprite.rect[1] - self.offset[1], sprite.rect[2], sprite.rect[3]))
+            ## Enemy Rects
+            # for sprite in self.game.enemy_group:
+            #     if self.game.CollisionBool:
+            #         pygame.draw.rect(self.display_surface, WHITE, (
+            #             sprite.collision_rect[0] - self.offset[0], sprite.collision_rect[1] - self.offset[1],
+            #             sprite.collision_rect[2], sprite.collision_rect[3]))
+            #     else:
+            #         pygame.draw.rect(self.display_surface, WHITE, (
+            #             sprite.rect[0] - self.offset[0], sprite.rect[1] - self.offset[1], sprite.rect[2], sprite.rect[3]))
 
-        # pygame.display.update()
-        # self.display_surface.blit(sprite.image, sprite.rect)
+            # pygame.display.update()
+            # self.display_surface.blit(sprite.image, sprite.rect)
+        else:
+            ground_offset = self.ground_rect.topleft - self.combatoffset
+            # self.display_surface.blit(self.ground_surf, (0, 0))
+            self.display_surface.fill(SKYBLUE)
+            self.display_surface.blit(self.ground_surf, ground_offset)
+            # Active Elements
+            for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.bottom):
+                offset_pos = sprite.rect.topleft - self.combatoffset
+                self.display_surface.blit(sprite.image, offset_pos)
+                # self.display_surface.blit(sprite.image, sprite.rect)

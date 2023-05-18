@@ -23,6 +23,7 @@ class Game:
         self.player_sprite_group = pygame.sprite.Group()
         self.terrain_group = pygame.sprite.Group()
         self.enemy_group = pygame.sprite.Group()
+        self.enemy_group_inCombat = pygame.sprite.Group()
         self.CollisionBool = True
 
         self.inTownText = self.font.render('In Town', True, BLACK)
@@ -48,6 +49,15 @@ class Game:
                 Tree(self, (random_x, random_y), self.terrain_group)
             elif random_terrain == 'Rock':
                 Rock(self, (random_x, random_y), self.terrain_group)
+    def generateCombatScreen(self):
+        self.TP_pos = self.player.rect.center
+        self.player.rect.center = (25, WIN_HEIGHT/2)
+        self.player.collision_rect = pygame.Rect(self.player.rect.left + self.player.collision_x_offset,
+                                                 self.player.rect.top + self.player.collision_y_offset,
+                                                 self.player.width - self.player.collision_width_offset,
+                                                 self.player.height - self.player.collision_height_offset)
+        for sprite in self.terrain_group:
+            self.camera_group.remove(sprite)
 
     def events(self):
         for event in pygame.event.get():
@@ -77,11 +87,25 @@ class Game:
                                                                  self.player.width - self.player.collision_width_offset,
                                                                  self.player.height - self.player.collision_height_offset)
                         current_pos = None
-                        self.generateTerrain()
+                        # self.generateTerrain()
 
                     self.generateTerrain()
                 if event.key == pygame.K_s:
                     Wolf(self, (self.player.rect.centerx, self.player.rect.centery+100),10, 10, 10 )
+                if event.key == pygame.K_c:
+                    self.player.inCombat = not self.player.inCombat
+                    if self.player.inCombat:
+                        self.generateCombatScreen()
+                    else:
+                        self.player.rect.center = self.TP_pos
+                        self.player.collision_rect = pygame.Rect(self.player.rect.left + self.player.collision_x_offset,
+                                                                 self.player.rect.top + self.player.collision_y_offset,
+                                                                 self.player.width - self.player.collision_width_offset,
+                                                                 self.player.height - self.player.collision_height_offset)
+                        for sprite in self.terrain_group:
+                            self.camera_group.add(sprite)
+
+
 
 
 

@@ -48,6 +48,9 @@ class Character(pygame.sprite.Sprite):
         self.animation_loop = 1
         self.animation_loop_speed = 0.5
 
+        self.inCombat = False
+        self.previousEnemies = []
+
         self.character_spritesheet = SpriteSheet('assets/CharacterWalkingSpritesheet.png')
         self.image = self.character_spritesheet.get_sprite(0, 192, self.width, self.height)
         self.rect = self.image.get_rect(topleft=pos)
@@ -113,6 +116,7 @@ class Character(pygame.sprite.Sprite):
                                       self.game.camera_group)
 
     def update(self):
+        self.collideEnemy()
         self.movement()
         self.animate()
 
@@ -128,7 +132,6 @@ class Character(pygame.sprite.Sprite):
                                                town.rect.centery - self.rect.centery)
             self.updateTownStats(town)
 
-
         self.collideTown()
 
         self.x_change = 0
@@ -139,43 +142,43 @@ class Character(pygame.sprite.Sprite):
         TownDistanceDictionary.update({town.ID: town.distanceToPlayer})
 
     def terrainGen(self):
+        if not self.inCombat:
+            if len(self.game.terrain_group) < self.MaxTerrain:
+                TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
+                for i in range(TerrainGenInt):
+                    random_terrain = random.choice(Terrain.TerrainTemplate.TerrainList)
+                    if self.facing == 'left':
+                        random_x = randint(self.rect.x - TerrainGenEdgeW, self.rect.x - (WIN_WIDTH / 2 + 25))
+                        random_y = randint(self.rect.y - TerrainGenEdgeH, self.rect.y + TerrainGenEdgeH)
 
-        if len(self.game.terrain_group) < self.MaxTerrain:
-            TerrainGenInt = self.MaxTerrain - len(self.game.terrain_group)
-            for i in range(TerrainGenInt):
-                random_terrain = random.choice(Terrain.TerrainTemplate.TerrainList)
-                if self.facing == 'left':
-                    random_x = randint(self.rect.x - TerrainGenEdgeW, self.rect.x - (WIN_WIDTH / 2 + 25))
-                    random_y = randint(self.rect.y - TerrainGenEdgeH, self.rect.y + TerrainGenEdgeH)
+                    elif self.facing == 'right':
+                        random_x = randint(self.rect.x + (WIN_WIDTH / 2 + 25), self.rect.x + TerrainGenEdgeW)
+                        random_y = randint(self.rect.y - TerrainGenEdgeH, self.rect.y + TerrainGenEdgeH)
 
-                elif self.facing == 'right':
-                    random_x = randint(self.rect.x + (WIN_WIDTH/2 + 25), self.rect.x + TerrainGenEdgeW)
-                    random_y = randint(self.rect.y - TerrainGenEdgeH, self.rect.y + TerrainGenEdgeH)
+                    elif self.facing == 'up':
+                        random_x = randint(self.rect.x - TerrainGenEdgeW, self.rect.x + TerrainGenEdgeW)
+                        random_y = randint(self.rect.y - TerrainGenEdgeH, self.rect.y - (WIN_HEIGHT / 2 + 25))
 
-                elif self.facing == 'up':
-                    random_x = randint(self.rect.x - TerrainGenEdgeW, self.rect.x + TerrainGenEdgeW)
-                    random_y = randint(self.rect.y - TerrainGenEdgeH, self.rect.y - (WIN_HEIGHT/2 + 25))
+                    elif self.facing == 'down':
+                        random_x = randint(self.rect.x - TerrainGenEdgeW, self.rect.x + TerrainGenEdgeW)
+                        random_y = randint(self.rect.y + (WIN_HEIGHT / 2 + 25), self.rect.y + TerrainGenEdgeH)
+                    else:
+                        random_x = 10000
+                        random_y = 10000
+                    if random_terrain == 'Tree':
+                        Tree(self.game, (random_x, random_y), self.game.terrain_group)
+                    elif random_terrain == 'Rock':
+                        Rock(self.game, (random_x, random_y), self.game.terrain_group)
 
-                elif self.facing == 'down':
-                    random_x = randint(self.rect.x - TerrainGenEdgeW, self.rect.x + TerrainGenEdgeW)
-                    random_y = randint(self.rect.y + (WIN_HEIGHT / 2 + 25), self.rect.y + TerrainGenEdgeH)
-                else:
-                    random_x = 10000
-                    random_y = 10000
-                if random_terrain == 'Tree':
-                    Tree(self.game, (random_x, random_y), self.game.terrain_group)
-                elif random_terrain == 'Rock':
-                    Rock(self.game, (random_x, random_y), self.game.terrain_group)
-
-                if (TownDistanceDictionary[
-                    min(TownDistanceDictionary, key=TownDistanceDictionary.get)]) >= self.closestTownDistRange:
-                    newTown = RandomTown((random_x, random_y), "Test " + str(self.newTownNum), self.newTownID)
-                    self.game.TownList.append(newTown)
-                    self.updateTownStats(newTown)
-                    newTown = None
-                    self.newTownNum += 1
-                    self.newTownID += 1
-                    self.closestTownDistList.clear()
+                    if (TownDistanceDictionary[
+                        min(TownDistanceDictionary, key=TownDistanceDictionary.get)]) >= self.closestTownDistRange:
+                        newTown = RandomTown((random_x, random_y), "Test " + str(self.newTownNum), self.newTownID)
+                        self.game.TownList.append(newTown)
+                        self.updateTownStats(newTown)
+                        newTown = None
+                        self.newTownNum += 1
+                        self.newTownID += 1
+                        self.closestTownDistList.clear()
 
     def animate(self):
         if self.facing == 'down':
@@ -267,6 +270,17 @@ class Character(pygame.sprite.Sprite):
                     if self.direction.y < 0:  # Moving Up
                         self.collision_rect.top = sprite.collision_rect.bottom
                         self.rect.top = sprite.collision_rect.bottom - self.collision_height_offset
+
+    def collideEnemy(self):
+        if not self.inCombat:
+            for sprite in self.game.enemy_group:
+                collide = pygame.Rect.colliderect(self.collision_rect, sprite.collision_rect)
+                if collide:
+                    self.game.enemy_group_inCombat.add(sprite)
+                    self.game.enemy_group.remove(sprite)
+
+
+                    # sprite.kill()
 
     def collideTown(self):
         for town in self.game.TownList:
