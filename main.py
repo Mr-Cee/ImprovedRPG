@@ -81,7 +81,7 @@ class Game:
 
                     self.generateTerrain()
                 if event.key == pygame.K_s:
-                    EnemyTemplate(self, (self.player.rect.centerx, self.player.rect.centery+100),10, 10, 10 )
+                    Wolf(self, (self.player.rect.centerx, self.player.rect.centery+100),10, 10, 10 )
 
 
 
@@ -93,7 +93,7 @@ class Game:
             random_x = randint(0, WIN_WIDTH)
             random_y = randint(0, WIN_HEIGHT)
             Tree(self, (random_x, random_y), self.terrain_group)
-        Wolf = EnemyTemplate(self, (400, 600), 10, 10, 10)
+        Wolf(self, (400, 600), 10, 10, 10)
 
 
     def update(self):

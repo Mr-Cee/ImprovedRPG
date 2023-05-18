@@ -121,7 +121,6 @@ class Character(pygame.sprite.Sprite):
         self.collideTerrain('x')
         self.rect.y += self.direction[1] * PLAYER_SPEED
         self.collision_rect.y += self.direction[1] * PLAYER_SPEED
-
         self.collideTerrain('y')
 
         for town in self.game.TownList:
